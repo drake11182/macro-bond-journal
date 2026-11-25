@@ -22,7 +22,6 @@ from sources import all_channel_posts, events_table, news_items
 ICON = {"채권시장": "🏦", "금리": "📈", "크레딧": "💳", "한국": "🇰🇷", "미국": "🇺🇸",
         "FX": "💱", "이벤트": "📅"}
 CIRCLE = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮"
-COMMENT = "> 💬 **내 코멘트:** "
 
 VIEW_BLOCK = """<!-- VIEW-START : 아래 값만 채우면 주간/월간 리뷰에서 자동 채점됩니다 -->
 <!-- 방향: 강세 / 약세 / 중립   ·   커브: 스티프닝 / 플래트닝 / 중립   ·   기간: 1주 / 1개월 -->
@@ -150,7 +149,7 @@ def render(mode, today, data, events_md, result, picks, counts) -> str:
            "### 크레딧", market.table(data, market.CREDIT_TABLE), "",
            "### 해외 금리 · FX · 원자재", market.table(data, market.GLOBAL_TABLE), "",
            "### 주요 스프레드", market.spread_table(data), "",
-           f"**🤖 AI 시장 해설** — {result['market_read']}", "", COMMENT, ""]
+           f"**🤖 AI 시장 해설** — {result['market_read']}", ""]
 
     md += [f"## 2. 경제지표 일정 ({'오늘~7일' if mode == 'weekday' else '다음 주'})", "", events_md, ""]
     if result.get("watch"):
@@ -174,7 +173,7 @@ def render(mode, today, data, events_md, result, picks, counts) -> str:
             srcs = [f"[{s['name']}]({s['url']})" if s.get("url") else s["name"] for s in p["sources"]]
             if srcs:
                 md.append(f"- <sub>출처: {', '.join(srcs)}</sub>")
-            md += ["", COMMENT, ""]
+            md.append("")
 
     memos = [p for p in picks if p.get("type") == "memo"]
     if memos:
@@ -182,7 +181,7 @@ def render(mode, today, data, events_md, result, picks, counts) -> str:
         md += [f"- {dt.datetime.fromisoformat(m['ts']):%m/%d %H:%M} — {m['memo']}" for m in memos] + [""]
 
     md += [f"## {'5' if memos else '4'}. 오늘의 총평 & 나의 뷰", "", "### 🧭 나의 뷰", "", VIEW_BLOCK, "",
-           "### ✍️ 총평", "", "> ", ""]
+           "### ✍️ 총평", "", "<!-- 오늘의 총평을 이 아래에 자유롭게 적어주세요 -->", ""]
     return "\n".join(md)
 
 

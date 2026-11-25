@@ -53,7 +53,8 @@ def parse_journal(path: Path) -> dict:
                 out["views"][mm.group(1).strip()] = mm.group(2).strip()
     w = re.search(r"### ✍️ 총평\s*(.*)$", txt, re.S)
     if w:
-        out["wrapup"] = "\n".join(l.lstrip("> ").rstrip() for l in w.group(1).splitlines()).strip()
+        body = re.sub(r"<!--.*?-->", "", w.group(1), flags=re.S)
+        out["wrapup"] = "\n".join(l.lstrip("> ").rstrip() for l in body.splitlines()).strip()
     return out
 
 

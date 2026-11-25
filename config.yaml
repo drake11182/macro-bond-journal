@@ -11,7 +11,7 @@ telegram_channels:
   - name: "키움증권 전략/시황 한지영"
     username: hedgecat0301
   - name: "KB 채권 - 임재균&박문현&이정욱"
-    username: ""          # ← 채널 링크(t.me/xxxx)의 xxxx 부분을 넣어주세요
+    username: jk_bond
 
 # 뉴스 (한국경제 RSS: 제목·요약문만 가져와서 AI가 골라냄)
 news_rss:

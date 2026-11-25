@@ -19,7 +19,7 @@ def main() -> None:
         return f"{has_c}{has_v}"
 
     # journal/INDEX.md — 전체 목록 (월별)
-    lines = ["# 📚 전체 일기 목록", "", "💬 = 코멘트 작성 · 🧭 = 뷰 기록", ""]
+    lines = ["# 📚 전체 일기 목록", "", "💬 = 총평 작성 · 🧭 = 뷰 기록", ""]
     month = None
     for j in js:
         m = j["date"].strftime("%Y-%m")
@@ -39,7 +39,7 @@ def main() -> None:
     commented = sum(1 for j in js if j["comments"] or j["wrapup"])
     block = "\n".join([
         "<!-- AUTO-START -->",
-        f"**기록 {total}일 · 코멘트 작성 {commented}일 · 뷰 적중률 {hit_rate(load_scorecard())}**",
+        f"**기록 {total}일 · 총평 작성 {commented}일 · 뷰 적중률 {hit_rate(load_scorecard())}**",
         "", "### 🗓️ 최근 일기", *recent, "", f"[→ 전체 목록](journal/INDEX.md)",
         "", "### 🔍 최근 리뷰", *rev,
         "<!-- AUTO-END -->",
