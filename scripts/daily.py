@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import re
 
 import market
 from collect import inbox_since
@@ -81,7 +82,9 @@ SYSTEM = """당신은 한국 채권시장을 주로 보는 매크로·채권 애
 - 각 포인트의 sources에는 입력에 실제로 있는 링크만 넣습니다 (없으면 빈 배열).
 - ⭐ 표시된 '내가 고른 글'은 빠짐없이 포인트에 반영하고 starred=true로 표시합니다.
 - 비슷한 내용은 하나의 포인트로 합치고, 채권과 무관한 개별 종목·생활 기사는 제외합니다.
-- 문장은 간결한 한국어 개조식(~함, ~음 체 또는 명사형)으로 씁니다."""
+- 문장은 간결한 한국어 개조식(~함, ~음 체 또는 명사형)으로 씁니다.
+- 본문에 [T1], (N3) 같은 입력 번호를 쓰지 않습니다. 출처는 sources에만 넣습니다.
+- ⭐ 글이 인사말·명령어처럼 내용이 없으면 무시합니다."""
 
 
 def build_prompt(mode, today, snap, events_txt, picks, posts, news, max_points) -> str:
@@ -120,7 +123,22 @@ def fallback_result(picks, posts, news) -> dict:
     return {"one_liner": "(API 키가 없어 AI 요약 없이 생성됨)", "market_read": "-", "points": pts, "watch": []}
 
 
+REF_RE = re.compile(r"\s*[\(\[]\s*(?:[TN]\d+\s*[,·/]?\s*)+[\)\]]")
+
+
+def clean_refs(obj):
+    """AI가 남긴 내부 참조 번호 (N1, T3) 제거."""
+    if isinstance(obj, str):
+        return REF_RE.sub("", obj)
+    if isinstance(obj, list):
+        return [clean_refs(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: (v if k == "sources" else clean_refs(v)) for k, v in obj.items()}
+    return obj
+
+
 def render(mode, today, data, events_md, result, picks, counts) -> str:
+    result = clean_refs(result)
     cats = config()["categories"]
     title = "매크로·채권 일기" if mode == "weekday" else "주말 이벤트 체크"
     md = [f"# 📒 {fmt_date(today)} {title}", "",

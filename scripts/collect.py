@@ -114,6 +114,12 @@ def collect_bot() -> int:
             continue
         if not text.strip():
             continue
+        is_forward = bool(m.get("forward_origin") or m.get("forward_from_chat"))
+        if text.strip().startswith("/") or (not is_forward and len(text.strip()) < 15
+                                             and not extract_urls(text) and not text.startswith("메모")):
+            tg_api("sendMessage", chat_id=chat_id, reply_to_message_id=m["message_id"],
+                   text="ℹ️ 짧은 글·명령어는 저장하지 않아요. 생각을 남기려면 '메모: ...' 로 보내주세요.")
+            continue
         source, link = "직접 입력", ""
         origin = m.get("forward_origin") or {}
         if origin.get("type") == "channel":
