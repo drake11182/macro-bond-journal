@@ -36,6 +36,11 @@ def load_env() -> None:
 
 load_env()
 
+# 복사·붙여넣기로 섞여 들어오는 보이지 않는 문자(BOM, 공백) 제거
+for _k in ("ANTHROPIC_API_KEY", "ECOS_API_KEY", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"):
+    if _k in os.environ:
+        os.environ[_k] = os.environ[_k].replace("﻿", "").strip()
+
 
 def now_kst() -> dt.datetime:
     return dt.datetime.now(KST)
@@ -115,8 +120,13 @@ def tg_api(method: str, **params):
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     if not token:
         return None
-    r = requests.post(f"https://api.telegram.org/bot{token}/{method}", json=params, timeout=30)
-    r.raise_for_status()
+    try:
+        r = requests.post(f"https://api.telegram.org/bot{token}/{method}", json=params, timeout=30)
+    except requests.RequestException as e:   # 에러 메시지에 토큰이 든 URL이 찍히지 않도록
+        raise RuntimeError(f"텔레그램 연결 실패 ({method}): {type(e).__name__}") from None
+    if not r.ok:
+        desc = r.json().get("description", "") if r.headers.get("content-type", "").startswith("application/json") else ""
+        raise RuntimeError(f"텔레그램 API 오류 ({method}): HTTP {r.status_code} {desc}")
     return r.json().get("result")
 
 

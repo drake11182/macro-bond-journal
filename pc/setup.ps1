@@ -37,12 +37,10 @@ $lines = foreach ($k in $keys.Keys) { if ($existing[$k]) { "$k=$($existing[$k])"
 Write-Host ".env 저장 완료 (이 파일은 GitHub에 올라가지 않습니다)" -ForegroundColor Green
 
 if (Get-Command gh -ErrorAction SilentlyContinue) {
-    foreach ($k in $keys.Keys) {
-        if ($existing[$k]) {
-            $existing[$k] | gh secret set $k
-            Write-Host "GitHub Secret 등록: $k" -ForegroundColor Green
-        }
-    }
+    # .env 파일에서 바로 등록 (파이프로 넘기면 PowerShell이 값 앞에 BOM을 붙이는 문제 방지)
+    gh secret set -f (Join-Path $root ".env")
+    if ($LASTEXITCODE -eq 0) { Write-Host "GitHub Secrets 등록 완료" -ForegroundColor Green }
+    else { Write-Host "GitHub Secrets 등록 실패 - 이 화면을 캡처해서 물어보세요" -ForegroundColor Red }
 } else {
     Write-Host "gh(GitHub CLI)가 없어 Secrets 등록은 건너뜀 → SETUP.md의 웹 등록 방법 참고" -ForegroundColor Yellow
 }
