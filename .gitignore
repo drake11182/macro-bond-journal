@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.pyc
+pc/_new_post.txt
+.venv/
+.notify_queue

@@ -1,0 +1,6 @@
+anthropic>=2.14
+requests
+pyyaml
+beautifulsoup4
+yfinance
+tzdata

@@ -1,0 +1,38 @@
+# ─────────────────────────────────────────────
+# 매크로·채권 일기장 설정 파일
+# 여기만 고치면 수집 대상·분량·분류를 바꿀 수 있습니다.
+# ─────────────────────────────────────────────
+
+# 요약·리뷰에 쓰는 Claude 모델
+model: claude-opus-5-5
+
+# 자동으로 읽어오는 공개 텔레그램 채널 (t.me/<username>)
+telegram_channels:
+  - name: "키움증권 전략/시황 한지영"
+    username: hedgecat0301
+  - name: "KB 채권 - 임재균&박문현&이정욱"
+    username: ""          # ← 채널 링크(t.me/xxxx)의 xxxx 부분을 넣어주세요
+
+# 뉴스 (한국경제 RSS: 제목·요약문만 가져와서 AI가 골라냄)
+news_rss:
+  - name: 한국경제 증권
+    url: https://www.hankyung.com/feed/finance
+  - name: 한국경제 경제
+    url: https://www.hankyung.com/feed/economy
+  - name: 한국경제 국제
+    url: https://www.hankyung.com/feed/international
+
+# 핵심 포인트 분류 (이 순서대로 일기에 표시)
+categories: [채권시장, 금리, 크레딧, 한국, 미국, FX, 이벤트]
+
+# 하루 핵심 포인트 개수 (평일 / 주말)
+max_points: 10
+max_points_weekend: 6
+
+# 해외 경제지표 일정 필터
+calendar:
+  countries: [USD, CNY, EUR, JPY]
+  min_impact: Medium        # Low / Medium / High
+
+# 뷰 채점: |금리 변화| 가 이 값(bp) 이하이면 '중립'으로 판정
+view_neutral_band_bp: 5

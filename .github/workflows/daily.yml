@@ -1,0 +1,55 @@
+name: 📒 매일 일기
+
+on:
+  schedule:
+    - cron: "40 0 * * 1-5"    # 평일 09:40 KST (GitHub 지연 감안 → 10시 전후 도착)
+    - cron: "45 6 * * 0,6"    # 주말 15:45 KST (→ 16시 전후 도착)
+  workflow_dispatch:           # Actions 탭에서 'Run workflow' 버튼으로 수동 실행
+    inputs:
+      mode:
+        description: "weekday / weekend (비우면 요일로 자동)"
+        required: false
+        default: ""
+      force:
+        description: "오늘 일기가 이미 있어도 새로 만들기 (코멘트 사라짐 주의)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repo-write
+  cancel-in-progress: false
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      DEFER_NOTIFY: "1"
+      TZ: Asia/Seoul
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 봇 수집함 가져오기
+        run: python scripts/collect.py
+      - name: 일기 생성
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.mode }}" ]; then ARGS="--mode ${{ inputs.mode }}"; fi
+          if [ "${{ inputs.force }}" = "true" ]; then ARGS="$ARGS --force"; fi
+          python scripts/daily.py $ARGS
+      - run: python scripts/build_index.py
+      - name: 커밋 & push
+        run: bash .github/workflows/_commit.sh "📒 $(date +%F) 일기"
+      - name: 텔레그램 알림
+        run: python scripts/common.py flush-notify

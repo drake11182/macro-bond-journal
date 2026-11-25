@@ -1,0 +1,55 @@
+name: 🔍 주간·월간 리뷰
+
+on:
+  schedule:
+    - cron: "0 8 * * 0"     # 매주 일요일 17:00 KST → 주간 리뷰
+    - cron: "30 8 1 * *"    # 매월 1일 17:30 KST → 지난달 월간 리뷰
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: "weekly / monthly"
+        required: true
+        default: weekly
+      force:
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repo-write
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      DEFER_NOTIFY: "1"
+      TZ: Asia/Seoul
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 리뷰 생성
+        run: |
+          KIND="${{ inputs.kind }}"
+          if [ -z "$KIND" ]; then
+            if [ "${{ github.event.schedule }}" = "30 8 1 * *" ]; then KIND=monthly; else KIND=weekly; fi
+          fi
+          ARGS=""
+          if [ "${{ inputs.force }}" = "true" ]; then ARGS="--force"; fi
+          python scripts/review.py "$KIND" $ARGS
+      - run: python scripts/build_index.py
+      - name: 커밋 & push
+        run: bash .github/workflows/_commit.sh "🔍 $(date +%F) 리뷰"
+      - name: 텔레그램 알림
+        run: python scripts/common.py flush-notify

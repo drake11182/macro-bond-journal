@@ -1,0 +1,14 @@
+# 국내 주요 일정 (해외 지표는 자동 수집, 국내는 여기에 직접 추가)
+# 형식:  - {date: 2026-12-01, time: "08:00", title: "11월 수출입", impact: High}
+#   time 생략 가능, impact: High / Medium / Low
+
+# 금통위 통화정책방향 결정회의 (2027년 일정: 2026-10-29 금통위 의결)
+- {date: 2026-11-26, time: "10:00", title: "금통위 통화정책방향 결정", impact: High}
+- {date: 2027-01-14, time: "10:00", title: "금통위 통화정책방향 결정", impact: High}
+- {date: 2027-02-25, time: "10:00", title: "금통위 통화정책방향 결정", impact: High}
+- {date: 2027-04-09, time: "10:00", title: "금통위 통화정책방향 결정", impact: High}
+- {date: 2027-05-27, time: "10:00", title: "금통위 통화정책방향 결정", impact: High}
+- {date: 2027-07-15, time: "10:00", title: "금통위 통화정책방향 결정", impact: High}
+- {date: 2027-08-26, time: "10:00", title: "금통위 통화정책방향 결정", impact: High}
+- {date: 2027-10-15, time: "10:00", title: "금통위 통화정책방향 결정", impact: High}
+- {date: 2027-11-25, time: "10:00", title: "금통위 통화정책방향 결정", impact: High}
