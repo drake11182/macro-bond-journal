@@ -167,3 +167,9 @@ if __name__ == "__main__":
 
     if sys.argv[1:] == ["flush-notify"]:
         flush_notify()
+    elif sys.argv[1:2] == ["notify-fail"]:
+        what = sys.argv[2] if len(sys.argv) > 2 else "작업"
+        run = os.environ.get("GITHUB_RUN_ID", "")
+        log = f"{repo_url()}/actions/runs/{run}" if run else ""
+        send_now(f"⚠️ {what} 실패했어요.\nClaude 크레딧 부족·키 만료·데이터 사이트 오류 등일 수 있어요.\n"
+                 f"예비 시각에 자동으로 다시 시도합니다.\n로그: {log}")
